@@ -14,6 +14,18 @@ export class Product {
     @Column()
     image: string;
 
+    @Column()
+    price: number;
+
+    @Column()
+    description: string;
+
     @Column({default: 0})
     likes: number;
+
+    @Column()
+    date_created: string;
+
+    @Column()
+    date_updated: string;
 }

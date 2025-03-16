@@ -15,27 +15,43 @@ var Product = /** @class */ (function () {
     function Product() {
     }
     __decorate([
-        typeorm_1.ObjectIdColumn(),
+        (0, typeorm_1.ObjectIdColumn)(),
         __metadata("design:type", String)
     ], Product.prototype, "id", void 0);
     __decorate([
-        typeorm_1.Column({ unique: true }),
+        (0, typeorm_1.Column)({ unique: true }),
         __metadata("design:type", Number)
     ], Product.prototype, "admin_id", void 0);
     __decorate([
-        typeorm_1.Column(),
+        (0, typeorm_1.Column)(),
         __metadata("design:type", String)
     ], Product.prototype, "title", void 0);
     __decorate([
-        typeorm_1.Column(),
+        (0, typeorm_1.Column)(),
         __metadata("design:type", String)
     ], Product.prototype, "image", void 0);
     __decorate([
-        typeorm_1.Column({ default: 0 }),
+        (0, typeorm_1.Column)(),
+        __metadata("design:type", Number)
+    ], Product.prototype, "price", void 0);
+    __decorate([
+        (0, typeorm_1.Column)(),
+        __metadata("design:type", String)
+    ], Product.prototype, "description", void 0);
+    __decorate([
+        (0, typeorm_1.Column)({ default: 0 }),
         __metadata("design:type", Number)
     ], Product.prototype, "likes", void 0);
+    __decorate([
+        (0, typeorm_1.Column)(),
+        __metadata("design:type", String)
+    ], Product.prototype, "date_created", void 0);
+    __decorate([
+        (0, typeorm_1.Column)(),
+        __metadata("design:type", String)
+    ], Product.prototype, "date_updated", void 0);
     Product = __decorate([
-        typeorm_1.Entity()
+        (0, typeorm_1.Entity)()
     ], Product);
     return Product;
 }());

@@ -6,10 +6,12 @@ import * as amqp from 'amqplib/callback_api';
 import {Product} from "./entity/product";
 import axios from 'axios';
 
+//mongodb://admin111:admin111@localhost:27017/
+
 createConnection().then(db => {
     const productRepository = db.getMongoRepository(Product)
 
-    amqp.connect('rabbitmq_url', (error0, connection) => {
+    amqp.connect('amqp://localhost:5672', (error0, connection) => {
         if (error0) {
             throw error0
         }
@@ -44,7 +46,7 @@ createConnection().then(db => {
 
             channel.consume('product_updated', async (msg) => {
                 const eventProduct: Product = JSON.parse(msg.content.toString())
-                const product = await productRepository.findOne({admin_id: parseInt(eventProduct.id)})
+                const product = await productRepository.findOne({where: {'admin_id': parseInt(eventProduct.id)}})
                 productRepository.merge(product, {
                     title: eventProduct.title,
                     image: eventProduct.image,
@@ -60,13 +62,13 @@ createConnection().then(db => {
                 console.log('product deleted')
             })
 
-            app.get('/api/products', async (req: Request, res: Response) => {
+            app.get('/api/products', async (req: Request, res: Response): Promise<any> => {
                 const products = await productRepository.find()
                 return res.send(products)
             })
 
-            app.post('/api/products/:id/like', async (req: Request, res: Response) => {
-                const product = await productRepository.findOne(req.params.id)
+            app.post('/api/products/:id/like', async (req: Request, res: Response): Promise<any> => {
+                const product = await productRepository.findOne({'where':{'id': parseInt(req.params.id,10)}})
                 await axios.post(`http://localhost:8000/api/products/${product.admin_id}/like`, {})
                 product.likes++
                 await productRepository.save(product)

@@ -1,13 +1,21 @@
 {
+  "skip": false,
+  "disabledIfNotEnabledImplicitly": true,
   "type": "mongodb",
+  "url": "mongodb://admin111:admin111@localhost:27017/yt_node_admin?retryWrites=true&w=majority",
   "host": "localhost",
-  "database": "yt_node_main",
+  "database": "yt_node_admin",
+  "target": "Product",
+  "user":"admin111",
+  "pwd":"admin111",
+  "useNewUrlParser": true,
   "synchronize": true,
-  "logging": false,
+  "logging": true,
   "entities": [
     "src/entity/*.js"
   ],
   "cli": {
     "entitiesDir": "src/entity"
-  }
+  },
+  "autoLoadEntities":true
 }
