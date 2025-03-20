@@ -42,9 +42,16 @@ createConnection().then(db => {
             })
 
             app.get('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
-                    //console.log(req.params.id);
-                    const product = await productRepository.findOne({where: {id: parseInt(req.params.id, 10)}})
-                    return res.send(product)
+                    try{
+                        const product = await productRepository.findOne({where: {id: parseInt(req.params.id, 10)}})
+                        if (!product) {
+                            return res.status(404).json({ error: "Product not found" });
+                          }
+                        return res.send(product)
+                    }catch(error){
+                        console.error("Error fetching product:", error);
+                        res.status(500).json({ error: "Internal server error" });
+                    }
             });
 
             // app.put('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
@@ -62,11 +69,18 @@ createConnection().then(db => {
             // })
 
             app.post('/api/products/:id/like', async (req: Request, res: Response): Promise<any> => {
-
-                const product = await productRepository.findOne({where: {id:  parseInt(req.params.id, 10)}})
-                product.likes++
-                const result = await productRepository.save(product)
-                return res.send(result)
+                try{
+                    const product = await productRepository.findOne({where: {id:  parseInt(req.params.id, 10)}})
+                    if (!product) {
+                        return res.status(404).json({ error: "Product not found" });
+                      }
+                    product.likes++
+                    const result = await productRepository.save(product)
+                    return res.send(result)
+                }catch(error){
+                    console.error("Error fetching product:", error);
+                    res.status(500).json({ error: "Internal server error" });
+                }
             })
 
             console.log('Listening to port: 8000')
