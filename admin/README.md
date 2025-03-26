@@ -10,4 +10,8 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 tsc
 
 
+PostGres
+https://stackoverflow.com/questions/62143322/typeorm-config-with-env-variables
 
+Node install postgres:
+https://node-postgres.com/

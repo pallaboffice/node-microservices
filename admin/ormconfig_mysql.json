@@ -1,9 +1,9 @@
 {
-  "type": "postgres",
+  "type": "mysql",
   "host": "localhost",
-  "port": 5432,
-  "username": "admin111",
-  "password": "admin111",
+  "port": 3306,
+  "username": "root",
+  "password": "password",
   "database": "yt_node_admin",
   "entities": [
     "src/entity/*.js"

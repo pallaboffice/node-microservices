@@ -108,18 +108,34 @@ var amqp = require("amqplib/callback_api");
                     }
                 });
             }); });
-            // app.put('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
-            //     const product = await productRepository.findOne(req.params.id)
-            //     productRepository.merge(product, req.body)
-            //     const result = await productRepository.save(product)
-            //     channel.sendToQueue('product_updated', Buffer.from(JSON.stringify(result)))
-            //     return res.send(result)
-            // });
-            // app.delete('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
-            //     const result = await productRepository.delete(req.params.id)
-            //     channel.sendToQueue('product_deleted', Buffer.from(req.params.id))
-            //     return res.send(result)
-            // })
+            app.put('/api/products/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+                var product, result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, productRepository.findOne({ where: { id: parseInt(req.params.id, 10) } })];
+                        case 1:
+                            product = _a.sent();
+                            productRepository.merge(product, req.body);
+                            return [4 /*yield*/, productRepository.save(product)];
+                        case 2:
+                            result = _a.sent();
+                            channel.sendToQueue('product_updated', Buffer.from(JSON.stringify(result)));
+                            return [2 /*return*/, res.send(result)];
+                    }
+                });
+            }); });
+            app.delete('/api/products/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+                var result;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, productRepository.delete(req.params.id)];
+                        case 1:
+                            result = _a.sent();
+                            channel.sendToQueue('product_deleted', Buffer.from(req.params.id));
+                            return [2 /*return*/, res.send(result)];
+                    }
+                });
+            }); });
             app.post('/api/products/:id/like', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
                 var product, result, error_2;
                 return __generator(this, function (_a) {

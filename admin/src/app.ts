@@ -54,19 +54,19 @@ createConnection().then(db => {
                     }
             });
 
-            // app.put('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
-            //     const product = await productRepository.findOne(req.params.id)
-            //     productRepository.merge(product, req.body)
-            //     const result = await productRepository.save(product)
-            //     channel.sendToQueue('product_updated', Buffer.from(JSON.stringify(result)))
-            //     return res.send(result)
-            // });
+            app.put('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
+                const product = await productRepository.findOne({where: {id:  parseInt(req.params.id, 10)}})
+                productRepository.merge(product, req.body)
+                const result = await productRepository.save(product)
+                channel.sendToQueue('product_updated', Buffer.from(JSON.stringify(result)))
+                return res.send(result)
+            });
 
-            // app.delete('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
-            //     const result = await productRepository.delete(req.params.id)
-            //     channel.sendToQueue('product_deleted', Buffer.from(req.params.id))
-            //     return res.send(result)
-            // })
+            app.delete('/api/products/:id', async (req: Request, res: Response): Promise<any> => {
+                const result = await productRepository.delete(req.params.id)
+                channel.sendToQueue('product_deleted', Buffer.from(req.params.id))
+                return res.send(result)
+            })
 
             app.post('/api/products/:id/like', async (req: Request, res: Response): Promise<any> => {
                 try{
