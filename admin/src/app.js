@@ -41,8 +41,14 @@ var cors = require("cors");
 var typeorm_1 = require("typeorm");
 var product_1 = require("./entity/product");
 var amqp = require("amqplib/callback_api");
+var business_admin_1 = require("./entity/business_admin");
 (0, typeorm_1.createConnection)().then(function (db) {
     var productRepository = db.getRepository(product_1.Product);
+    var app = express();
+    app.use(cors({
+        origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
+    }));
+    app.use(express.json());
     //amqp.credentials.plain('guest','guest');
     //const amqp = require('amqplib');
     amqp.connect('amqp://localhost:5672', function (error0, connection) {
@@ -54,11 +60,6 @@ var amqp = require("amqplib/callback_api");
             if (error1) {
                 throw error1;
             }
-            var app = express();
-            app.use(cors({
-                origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
-            }));
-            app.use(express.json());
             app.get('/api/products', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
                 var products;
                 return __generator(this, function (_a) {
@@ -169,5 +170,73 @@ var amqp = require("amqplib/callback_api");
                 connection.close();
             });
         });
+        var BusinessAdminRepository = db.getRepository(business_admin_1.BusinessAdmin);
+        app.get('/api/business_user', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+            var business_admin, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, BusinessAdminRepository.find()];
+                    case 1:
+                        business_admin = _a.sent();
+                        res.json(business_admin);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_3 = _a.sent();
+                        console.error("Error fetching users:", error_3);
+                        res.status(500).json({ error: "Internal server error" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        }); });
+        app.post('/api/business_user', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+            var business_admin, result, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, BusinessAdminRepository.create(req.body)];
+                    case 1:
+                        business_admin = _a.sent();
+                        return [4 /*yield*/, BusinessAdminRepository.save(business_admin)];
+                    case 2:
+                        result = _a.sent();
+                        return [2 /*return*/, res.send(result)];
+                    case 3:
+                        error_4 = _a.sent();
+                        console.error("Error fetching users:", error_4);
+                        res.status(500).json({ error: "Internal server error" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        app.post('/api/login', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+            var user, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        //const res = userName !== (undefined || null)
+                        console.log(req.params.email_address);
+                        console.log(req.body.email_address);
+                        return [4 /*yield*/, BusinessAdminRepository.findOne({ where: { email_address: req.body.email_address } })];
+                    case 1:
+                        user = _a.sent();
+                        if (!user) {
+                            return [2 /*return*/, res.status(404).json({ error: "User not found" })];
+                        }
+                        return [2 /*return*/, res.send(user.email_address)];
+                    case 2:
+                        error_5 = _a.sent();
+                        console.error("Error, user not available", error_5);
+                        res.status(500).json({ error: "Internal server error" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        }); });
     });
 });
