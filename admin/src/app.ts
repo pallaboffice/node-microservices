@@ -92,7 +92,6 @@ createConnection().then(db => {
             })
         })
         
-
         const BusinessAdminRepository = db.getRepository(BusinessAdmin);
 
         app.get('/api/business_user', async (req: Request, res: Response): Promise<any> => {
