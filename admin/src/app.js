@@ -42,9 +42,13 @@ var typeorm_1 = require("typeorm");
 var product_1 = require("./entity/product");
 var amqp = require("amqplib/callback_api");
 var business_admin_1 = require("./entity/business_admin");
+//import { jwt } from 'jsonwebtoken';
+var jwt = require('jsonwebtoken'); // Correct import
 (0, typeorm_1.createConnection)().then(function (db) {
     var productRepository = db.getRepository(product_1.Product);
     var app = express();
+    // Secret key for JWT
+    var JWT_SECRET = 'yourSecretKey';
     app.use(cors({
         origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
     }));
@@ -170,6 +174,9 @@ var business_admin_1 = require("./entity/business_admin");
                 connection.close();
             });
         });
+        //
+        // admin user and authentication 
+        //
         var BusinessAdminRepository = db.getRepository(business_admin_1.BusinessAdmin);
         app.get('/api/business_user', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
             var business_admin, error_3;
@@ -213,30 +220,122 @@ var business_admin_1 = require("./entity/business_admin");
                 }
             });
         }); });
+        //Validate truthy using if(value) only
+        //        ╭─ nullish ──────╮ ╭─ not nullish ─────────────────────────────────╮
+        //        ┌───────────┬──────┬───────┬───┬────┬─────┬──────┬───┬─────────┬─────┐
+        //        │ undefined │ null │ false │ 0 │ "" │ ... │ true │ 1 │ "hello" │ ... │
+        //        └───────────┴──────┴───────┴───┴────┴─────┴──────┴───┴─────────┴─────┘
+        //         ╰─ falsy ───────────────────────────────╯ ╰─ truthy ───────────────╯
+        //validate client side json request
+        //https://stackoverflow.com/questions/28286073/test-how-api-handles-invalid-json-syntax-request-body-using-node-js
+        //validate servreside json
+        app.use(function (err, req, res, next) {
+            if (err.status === 400) {
+                return res.status(400).send({ status: 400, message: err.message });
+            }
+            if (err instanceof SyntaxError && 'body' in err) {
+                console.error(err.name);
+                return res.status(400).send({ status: 400, message: err.message }); // Bad request
+            }
+            next();
+        });
+        function validateJson(jsonData) {
+            if (typeof jsonData !== 'object') {
+                return false;
+            }
+            try {
+                var json_data = JSON.stringify(jsonData);
+                if (json_data.length < 10) {
+                    throw Error('Please connect to admin!');
+                }
+            }
+            catch (error) {
+                console.log("Invalid data!", error);
+                return false;
+            }
+            return true;
+        }
         app.post('/api/login', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-            var user, error_5;
+            var user, email, token, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        //const res = userName !== (undefined || null)
-                        console.log(req.params.email_address);
-                        console.log(req.body.email_address);
-                        return [4 /*yield*/, BusinessAdminRepository.findOne({ where: { email_address: req.body.email_address } })];
-                    case 1:
-                        user = _a.sent();
-                        if (!user) {
-                            return [2 /*return*/, res.status(404).json({ error: "User not found" })];
+                        if (!validateJson(req.body)) {
+                            return [2 /*return*/, res.status(404).json({ error: "Invalid data!" })];
                         }
-                        return [2 /*return*/, res.send(user.email_address)];
+                        if (req.body.email_address && req.body.password) {
+                            console.log("Login: ", req.body.email_address, req.body.password);
+                        }
+                        else {
+                            return [2 /*return*/, res.status(404).json({ error: "Verify username or password!" })];
+                        }
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, BusinessAdminRepository.find({
+                                where: {
+                                    email_address: req.body.email_address,
+                                    password: req.body.password
+                                },
+                                select: {
+                                    bid: true
+                                }
+                            })];
                     case 2:
+                        user = _a.sent();
+                        if (!user[0]) {
+                            return [2 /*return*/, res.status(404).json({ error: "Invalid username or password!" })];
+                        }
+                        try {
+                            email = req.body.email_address;
+                            token = jwt.sign({ email: email }, JWT_SECRET, { expiresIn: '1h' });
+                            res.status(200).json({
+                                message: "Login Successful",
+                                token: token
+                            });
+                        }
+                        catch (error) {
+                            console.error("Error generating JWT:", error);
+                            res.status(500).json({ message: 'Error generating token', error: error.message });
+                        }
+                        return [3 /*break*/, 4];
+                    case 3:
                         error_5 = _a.sent();
-                        console.error("Error, user not available", error_5);
+                        console.error("Error:", error_5);
                         res.status(500).json({ error: "Internal server error" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });
+        //After login success, load dashborad , pages
+        // Middleware to verify JWT token
+        var verifyToken = function (req, res, next) {
+            var _a;
+            // Get the token from the Authorization header
+            var token = (_a = req.header('Authorization')) === null || _a === void 0 ? void 0 : _a.replace('Bearer ', '');
+            if (!token) {
+                return res.status(401).json({ message: 'Access Denied. No token provided.' });
+            }
+            try {
+                // Verify the token
+                var decoded = jwt.verify(token, JWT_SECRET);
+                req.user = decoded; // Store the decoded user information in the request object
+                next(); // Proceed to the next middleware or route handler
+            }
+            catch (err) {
+                res.status(400).json({ message: 'Invalid token' });
+            }
+        };
+        // Dashboard Route (Protected)
+        app.get('/dashboard', verifyToken, function (req, res) {
+            // Access the user data from the JWT token
+            var userEmail = req.body.email_address;
+            // Send a response for the protected dashboard
+            res.status(200).json({
+                message: "Welcome to the dashboard, ".concat(userEmail),
+            });
+        });
+        //curl -X GET http://localhost:3000/dashboard -H "Authorization: Bearer <your_jwt_token>"
     });
 });

@@ -12,8 +12,11 @@
   "dependencies": {
     "admin": "file:",
     "amqplib": "^0.10.5",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mysql": "^2.18.1",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",

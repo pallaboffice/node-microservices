@@ -15,3 +15,11 @@ https://stackoverflow.com/questions/62143322/typeorm-config-with-env-variables
 
 Node install postgres:
 https://node-postgres.com/
+
+
+Login::
+npm install express bcryptjs jsonwebtoken body-parser
+
+
+body-parser --- not require , using express.json()
+bcrypt -------- not require for now, using plain password.
