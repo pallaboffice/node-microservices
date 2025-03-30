@@ -27,7 +27,7 @@ var Product = /** @class */ (function () {
         __metadata("design:type", String)
     ], Product.prototype, "image", void 0);
     __decorate([
-        (0, typeorm_1.Column)(),
+        (0, typeorm_1.Column)({ type: "decimal", precision: 10, scale: 2, default: 0 }),
         __metadata("design:type", Number)
     ], Product.prototype, "price", void 0);
     __decorate([
@@ -39,13 +39,13 @@ var Product = /** @class */ (function () {
         __metadata("design:type", Number)
     ], Product.prototype, "likes", void 0);
     __decorate([
-        (0, typeorm_1.Column)(),
-        __metadata("design:type", String)
-    ], Product.prototype, "date_created", void 0);
+        (0, typeorm_1.Column)({ type: 'timestamp' }),
+        __metadata("design:type", Date)
+    ], Product.prototype, "created_at", void 0);
     __decorate([
-        (0, typeorm_1.Column)(),
-        __metadata("design:type", String)
-    ], Product.prototype, "date_updated", void 0);
+        (0, typeorm_1.UpdateDateColumn)(),
+        __metadata("design:type", Date)
+    ], Product.prototype, "updated_at", void 0);
     Product = __decorate([
         (0, typeorm_1.Entity)()
     ], Product);

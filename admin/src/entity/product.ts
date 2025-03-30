@@ -1,4 +1,4 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn} from "typeorm";
 
 @Entity()
 export class Product {
@@ -11,7 +11,7 @@ export class Product {
     @Column()
     image: string;
 
-    @Column()
+    @Column({type: "decimal", precision: 10, scale: 2, default: 0})
     price: number;
 
     @Column()
@@ -20,9 +20,9 @@ export class Product {
     @Column({default: 0})
     likes: number;
 
-    @Column()
-    date_created: string;
+    @Column({type: 'timestamp'})
+    created_at: Date;
 
-    @Column()
-    date_updated: string;
+    @UpdateDateColumn()
+    updated_at: Date;
 }

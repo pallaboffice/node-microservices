@@ -23,3 +23,15 @@ npm install express bcryptjs jsonwebtoken body-parser
 
 body-parser --- not require , using express.json()
 bcrypt -------- not require for now, using plain password.
+
+Adding new products data.
+https://www.npmjs.com/package/@faker-js/faker
+npm install --save-dev @faker-js/faker
+
+Date format
+https://www.geeksforgeeks.org/how-to-format-datetime-to-yyyy-mm-dd-hhmmss-in-momentjs/
+
+npm i moment
+
+
+
