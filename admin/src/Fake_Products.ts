@@ -23,7 +23,7 @@ export function createRandomProduct() {
   }
 }
 
-export const FakeProducts = faker.helpers.multiple(createRandomProduct, {count: 5});
+export const FakeProducts = faker.helpers.multiple(createRandomProduct, {count: 5000});
 //console.log("okkkkkk");
 
 

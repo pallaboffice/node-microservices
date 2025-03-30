@@ -64,14 +64,29 @@ var jwt = require('jsonwebtoken'); // Correct import
             if (error1) {
                 throw error1;
             }
-            app.get('/api/products', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var products;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, productRepository.find()];
+            app.get('/api/products/:page/:limit', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+                var page, limit, offset, _a, products, total;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            page = parseInt(req.params.page) || 1;
+                            limit = parseInt(req.params.limit) || 6;
+                            offset = (page - 1) * limit;
+                            console.log(page, limit, offset);
+                            return [4 /*yield*/, productRepository.findAndCount({
+                                    skip: offset,
+                                    take: limit,
+                                    order: { id: "DESC" }, // Sort by latest created
+                                })];
                         case 1:
-                            products = _a.sent();
-                            res.json(products);
+                            _a = _b.sent(), products = _a[0], total = _a[1];
+                            res.json({
+                                total: total,
+                                page: page,
+                                limit: limit,
+                                totalPages: Math.ceil(total / limit),
+                                data: products,
+                            });
                             return [2 /*return*/];
                     }
                 });

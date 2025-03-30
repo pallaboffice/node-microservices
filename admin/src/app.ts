@@ -5,6 +5,7 @@ import {createConnection} from 'typeorm'
 import {Product} from "./entity/product";
 import * as amqp from 'amqplib/callback_api';
 import { BusinessAdmin } from './entity/business_admin';
+import { off } from 'process';
 //import { jwt } from 'jsonwebtoken';
 
 const jwt = require('jsonwebtoken'); // Correct import
@@ -36,9 +37,26 @@ createConnection().then(db => {
                 throw error1
             }
 
-            app.get('/api/products', async (req: Request, res: Response) => {
-                const products = await productRepository.find()
-                res.json(products)
+            app.get('/api/products/:page/:limit', async (req: Request, res: Response) => {
+
+                let page = parseInt(req.params.page) || 1;  // Default page 1
+                let limit = parseInt(req.params.limit) || 6; // Default limit 10
+                let offset = (page - 1) * limit;
+
+                console.log(page,limit,offset);
+
+                const [products, total] = await productRepository.findAndCount({
+                    skip: offset,
+                    take: limit,
+                    order: { id: "DESC" }, // Sort by latest created
+                })
+                res.json({
+                    total,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(total / limit),
+                    data: products,
+                })
             })
 
             app.post('/api/products', async (req: Request, res: Response): Promise<any> => {

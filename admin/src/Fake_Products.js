@@ -58,7 +58,7 @@ function createRandomProduct() {
     };
 }
 exports.createRandomProduct = createRandomProduct;
-exports.FakeProducts = faker.helpers.multiple(createRandomProduct, { count: 5 });
+exports.FakeProducts = faker.helpers.multiple(createRandomProduct, { count: 5000 });
 //console.log("okkkkkk");
 (0, typeorm_1.createConnection)().then(function (db) {
     var inFun = function (FakeProducts) { return __awaiter(void 0, void 0, void 0, function () {
