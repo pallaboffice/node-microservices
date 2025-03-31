@@ -1,7 +1,7 @@
 import * as express from 'express'
 import {Request, Response} from 'express'
 import * as cors from 'cors'
-import {createConnection} from 'typeorm'
+import {createConnection, ILike, Between, MoreThan, LessThan, Any} from 'typeorm'
 import {Product} from "./entity/product";
 import * as amqp from 'amqplib/callback_api';
 import { BusinessAdmin } from './entity/business_admin';
@@ -19,7 +19,7 @@ createConnection().then(db => {
     const JWT_SECRET = 'yourSecretKey';
 
     app.use(cors({
-        origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
+        origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200', 'http://192.168.56.1:3000']
     }))
 
     app.use(express.json())
@@ -43,9 +43,28 @@ createConnection().then(db => {
                 let limit = parseInt(req.params.limit) || 6; // Default limit 10
                 let offset = (page - 1) * limit;
 
-                console.log(page,limit,offset);
+                let { title, minPrice, maxPrice } = req.query;
+                
+                console.log(page,limit,offset, title);
+
+                // Build the search filter
+                let whereClause: any = {};
+
+                if (title) {
+                    whereClause.title = ILike(`%${title}%`); // Partial match
+                }
+
+                // ✅ Price filter (greater than, less than, or range)
+                if (minPrice && maxPrice) {
+                    whereClause.price = Between(minPrice, maxPrice);
+                } else if (minPrice) {
+                    whereClause.price = MoreThan(minPrice);
+                } else if (maxPrice) {
+                    whereClause.price = LessThan(maxPrice);
+                }
 
                 const [products, total] = await productRepository.findAndCount({
+                    where: whereClause,
                     skip: offset,
                     take: limit,
                     order: { id: "DESC" }, // Sort by latest created

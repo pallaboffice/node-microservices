@@ -50,7 +50,7 @@ var jwt = require('jsonwebtoken'); // Correct import
     // Secret key for JWT
     var JWT_SECRET = 'yourSecretKey';
     app.use(cors({
-        origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200']
+        origin: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:4200', 'http://192.168.56.1:3000']
     }));
     app.use(express.json());
     //amqp.credentials.plain('guest','guest');
@@ -65,21 +65,37 @@ var jwt = require('jsonwebtoken'); // Correct import
                 throw error1;
             }
             app.get('/api/products/:page/:limit', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                var page, limit, offset, _a, products, total;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
+                var page, limit, offset, _a, title, minPrice, maxPrice, whereClause, _b, products, total;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
                         case 0:
                             page = parseInt(req.params.page) || 1;
                             limit = parseInt(req.params.limit) || 6;
                             offset = (page - 1) * limit;
-                            console.log(page, limit, offset);
+                            _a = req.query, title = _a.title, minPrice = _a.minPrice, maxPrice = _a.maxPrice;
+                            console.log(page, limit, offset, title);
+                            whereClause = {};
+                            if (title) {
+                                whereClause.title = (0, typeorm_1.ILike)("%".concat(title, "%")); // Partial match
+                            }
+                            // ✅ Price filter (greater than, less than, or range)
+                            if (minPrice && maxPrice) {
+                                whereClause.price = (0, typeorm_1.Between)(minPrice, maxPrice);
+                            }
+                            else if (minPrice) {
+                                whereClause.price = (0, typeorm_1.MoreThan)(minPrice);
+                            }
+                            else if (maxPrice) {
+                                whereClause.price = (0, typeorm_1.LessThan)(maxPrice);
+                            }
                             return [4 /*yield*/, productRepository.findAndCount({
+                                    where: whereClause,
                                     skip: offset,
                                     take: limit,
                                     order: { id: "DESC" }, // Sort by latest created
                                 })];
                         case 1:
-                            _a = _b.sent(), products = _a[0], total = _a[1];
+                            _b = _c.sent(), products = _b[0], total = _b[1];
                             res.json({
                                 total: total,
                                 page: page,
